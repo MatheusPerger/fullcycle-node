@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  app:
+    build:
+      context: ./node
+    image: matheusperger/fullcycle-node:latest
+    container_name: app
+    command: node index.js
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh
+    networks:
+      - node-network
+    volumes:
+      - ./node/app:/usr/src/app
+    tty: true
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: ./mysql
+    image: matheusperger/fullcycle-db:latest
+    container_name: db
+    restart: always
+    tty: true
+    environment:
+      - MYSQL_DATABASE=mydb
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./mysql/db:/var/lib/mysql
+    networks:
+      - node-network
+  
+  nginx:
+    build:
+      context: ./nginx
+    image: matheusperger/fullcycle-nginx:latest
+    container_name: nginx
+    ports:
+      - "8080:80"
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    driver: bridge
