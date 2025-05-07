@@ -2,6 +2,19 @@ version: '3'
 
 services:
 
+  nginx:
+    build:
+      context: ./nginx
+    image: matheusperger/fullcycle-nginx:latest
+    entrypoint: dockerize -wait tcp://app:3000 -timeout 20s /docker-entrypoint.sh nginx -g "daemon off;"
+    container_name: nginx
+    ports:
+      - "8080:80"
+    networks:
+      - node-network
+    depends_on:
+      - app
+
   app:
     build:
       context: ./node
@@ -29,16 +42,6 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - ./mysql/db:/var/lib/mysql
-    networks:
-      - node-network
-  
-  nginx:
-    build:
-      context: ./nginx
-    image: matheusperger/fullcycle-nginx:latest
-    container_name: nginx
-    ports:
-      - "8080:80"
     networks:
       - node-network
 
