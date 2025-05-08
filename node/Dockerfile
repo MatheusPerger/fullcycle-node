@@ -13,6 +13,9 @@ RUN apt-get update \
 
 RUN npm install
 
+RUN mv node_modules /node_modules \
+    && ln -s /node_modules /usr/src/app/node_modules
+
 EXPOSE 3000
 
 CMD ["node","index.js"]
